@@ -20,7 +20,7 @@ function get_assets(array $filters = []): ?object
     if (!empty($filters['status'])) $sql .= " AND a.status = " . $db->escape($filters['status']);
     if (!empty($filters['serial_number'])) $sql .= " AND a.serial_number LIKE " . $db->escape("%" . $filters['serial_number'] . "%");
     
-    return $db->query($sql);
+    return $db->query($sql) ?: null;
 }
 
 function get_asset_by_serial(string $serial): ?array
@@ -45,7 +45,7 @@ function get_asset(int $id): ?array
 function assign_asset(int $asset_id, string $assign_type, int $assign_id): bool
 {
     global $db;
-    return $db->query("UPDATE " . TB_PREF . "assets SET assigned_to = " . $assign_id . ", assigned_type = " . $db->escape($assign_type) . " WHERE id = " . $asset_id);
+    return $db->query("UPDATE " . TB_PREF . "assets SET assigned_type = " . $db->escape($assign_type) . ", assigned_to = " . $assign_id . " WHERE id = " . $asset_id) !== false;
 }
 
 function transfer_asset(int $asset_id, string $to_type, int $to_id, int $by_user): int
@@ -104,6 +104,7 @@ function get_upcoming_maintenance(int $days = 30): ?object
 {
     global $db;
     $future = date('Y-m-d', strtotime("+{$days} days"));
-    return $db->query("SELECT m.*, a.name as asset_name, a.serial_number FROM " . TB_PREF . "asset_maintenance m
+    $result = $db->query("SELECT m.*, a.name as asset_name, a.serial_number FROM " . TB_PREF . "asset_maintenance m
         JOIN " . TB_PREF . "assets a ON m.asset_id = a.id WHERE m.next_due_date <= " . $db->escape($future) . " AND m.next_due_date IS NOT NULL ORDER BY m.next_due_date");
+    return $result ?: null;
 }

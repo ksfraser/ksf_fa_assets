@@ -1,0 +1,8 @@
+{
+    "name": "ksfraser/ksf_fa_assets",
+    "description": "FA module: Equipment assets with depreciation tracking",
+    "require-dev": {
+        "phpunit/phpunit": "^10",
+        "ksfraser/famock": "*"
+    }
+}
